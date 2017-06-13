@@ -1,0 +1,512 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Api Docs</title>
+<link rel="stylesheet" href="bootstrap/css/bootstrap.min.css" />
+<link rel="stylesheet" href="jsonFormater/jsonFormater.css" />
+<link rel="stylesheet" href="honeySwitch/honeySwitch.css" />
+<link rel="stylesheet" href="jqueryToast/jquery.toast.css" />
+<link rel="stylesheet" href="scrollerBar/scroll.bar.css" />
+<link rel="stylesheet" href="apiCommon.css" />
+<script src="jquery-3.1.1.min.js"></script>
+<script src="api.docs.url.js"></script>
+<script src="bootstrap/js/bootstrap.min.js"></script>
+<script src="jsonFormater/jsonFormater.js"></script>
+<script src="honeySwitch/honeySwitch.js"></script>
+<script src="jqueryToast/jquery.toast.js"></script>
+<script src="ajaxFileUpload/ajaxfileupload.js"></script>
+<script src="scrollerBar/scroll.bar.min.js"></script>
+<script src="show.api.search.js"></script>
+<script type="text/javascript">
+  var isAllow = false;//白名单权限
+  var apiGroups = {};
+  var apiExamples = {};
+  $(function(){
+	  //获取文档说明信息
+	  $.get(apiDocsInfoUrl,function(docsInfo){
+		  $("#titleId").html(docsInfo.docTitle);
+	  });
+	  //获取api分组信息
+	  $.get(apiGroupsUrl,function(apiGroupsData){
+		  apiGroups = apiGroupsData;
+		  var groupsLiStr = "";
+		  for(var groupName in apiGroups){
+			  groupsLiStr = groupsLiStr + "<li><a>" + groupName + "</a></li>";
+		  }
+		  $("#apiGroupsUl").html(groupsLiStr);
+		  $(".group_list_bt").mCustomScrollbar({
+				scrollInertia:150
+		  });
+		  if($.isEmptyObject(apiGroups)){
+			  $("#apiGroupsUl").css("height", "420px");
+		  }
+		  $("#navi-bar ul li a").each(function(){
+				$(this).click(function(){
+					$(".active").removeClass("active");
+					$(this).parent().addClass("active");
+					var groupName = $(this).html();
+					var resourcesData = apiGroups[groupName].resourcesMap;
+					var resourcesStr = "";
+					for(var resourcesName in resourcesData){
+						resourcesStr = resourcesStr + "<div class='panel panel-info'>";
+						resourcesStr = resourcesStr + "<div class='panel-heading' data-toggle='collapse' data-parent='#content' href='#"+resourcesName+"'><h4 class='panel-title' style='display:inline;'><a>"+resourcesName+"</a></h4></div>";
+						resourcesStr = resourcesStr + "<div id='"+resourcesName+"' class='panel-collapse collapse panel-group'>";
+						//添加api信息
+						var methodsData = resourcesData[resourcesName].methods;
+						var methodStr = "";
+ 		    			for(var k=0;k<methodsData.length;k++){
+							methodStr = methodStr + "<div class='panel panel-default'>";
+							methodStr = methodStr + "<div class='panel-heading' data-toggle='collapse' data-parent='#"+resourcesName+"' href='#method"+methodsData[k].id+"'>";
+							/*****title*****/
+							var methodTitle = "<div class='div-float-left'>";
+							methodTitle = methodTitle + "<button id='methodId"+methodsData[k].id+"' type='button' class='btn ";
+							if(methodsData[k].method=="POST"){
+								methodTitle = methodTitle + "btn-success";
+							}else{
+								methodTitle = methodTitle + "btn-info";
+							}
+							methodTitle = methodTitle + "' style='cursor:auto;width:63px;'>"+methodsData[k].method+"</button>";
+							methodTitle = methodTitle + "&nbsp;&nbsp;请求连接："
+							if(methodsData[k].deprecated){
+								methodTitle = methodTitle + "<span id='uriId"+methodsData[k].id+"' class='text-line-through'>"+methodsData[k].classUri+methodsData[k].uri+"</span>";
+							}else{
+								methodTitle = methodTitle + "<span id='uriId"+methodsData[k].id+"'>"+methodsData[k].classUri+methodsData[k].uri+"</span>";
+							}
+							if(methodsData[k].author!=""){
+								methodTitle = methodTitle + "<span class='margin-left-50 text-info-color'>Author："+methodsData[k].author+"</span>";
+							}
+							methodTitle = methodTitle + "</div>";
+							methodTitle = methodTitle + "<div class='div-float-right' style='height:30px;line-height:30px;'>";
+							methodTitle = methodTitle + "<span class='margin-right-10 line-height-30' style='display:inline-block;vertical-align:middle;text-align:center;'>"+methodsData[k].title+"</span>"+"<span id='sw"+methodsData[k].id+"' class='switch-off' style='display:inline-block;vertical-align:middle;text-align:center;' title='Mock 开关' attrKey='"+methodsData[k].classUri+"#"+methodsData[k].uri+"' onclick='setApiMock(this);'></span>";
+							methodTitle = methodTitle + "</div>";
+							methodTitle = methodTitle + "<div class='div-clear'></div>";
+							/*****title*****/
+							methodStr = methodStr + methodTitle;
+							methodStr = methodStr + "</div>";
+							methodStr = methodStr + "<div id='method"+methodsData[k].id+"' class='panel-collapse collapse'>";
+							/*****detail*****/
+							var methodTabStr = "";
+							methodTabStr = methodTabStr + "<ul class='nav nav-tabs'><li class='active'><a href='#modelId"+methodsData[k].id+"' data-toggle='tab'>响应模型</a></li><li><a href='#exampleId"+methodsData[k].id+"' data-toggle='tab'>响应示例</a></li><li><a href='#logsId"+methodsData[k].id+"' data-toggle='tab'>变更记录</a></li><li><a href='#remarkId"+methodsData[k].id+"' data-toggle='tab'>备注说明</a></li></ul>";
+							methodTabStr = methodTabStr + "<div class='tab-content'>";
+							//处理响应模型
+							methodTabStr = methodTabStr + "<div class='tab-pane fade in active' id='modelId"+methodsData[k].id+"'>";
+							var respModelStr = "<div class='panel-body'>";
+							respModelStr = respModelStr + "<h3><span class='label label-info'>数据模型</span>&nbsp;&nbsp;"+methodsData[k].returnType+"</h3>";
+							respModelStr = respModelStr + "<div class='panel-group margin-top-10' id='accordion"+methodsData[k].id+"'>";
+							var returnClsData = methodsData[k].returnClsList;
+							var apiStatusesData = methodsData[k].apiStatuses;
+							var returnClsStr = "";
+							for(var rIdx=0;rIdx<returnClsData.length;rIdx++){
+								returnClsStr = returnClsStr + "<div class='panel panel-default'>";
+								returnClsStr = returnClsStr + "<div class='panel-heading'><h4><a data-toggle='collapse' data-parent='#accordion"+methodsData[k].id+"' href='#collapse"+methodsData[k].id+rIdx+"'>&nbsp;"+returnClsData[rIdx].simpleName+"</a></h4></div>";
+								returnClsStr = returnClsStr + "<div id='collapse"+methodsData[k].id+rIdx+"' class='panel-collapse collapse'>";
+								var fieldTableStr = "<table class='table table-condensed'>";
+								fieldTableStr = fieldTableStr + "<tr><th>&nbsp;名称</th><th>类型</th><th>必选</th><th>描述</th></tr>";
+								var fieldsData = returnClsData[rIdx].fields;
+								for(var fIdx=0;fIdx<fieldsData.length;fIdx++){
+									var isAllowEmptyCn = fieldsData[fIdx].isAllowEmpty==1?"是":"否";
+									var showDataType = fieldsData[fIdx].showType;
+									if(rIdx==0&&fIdx==2){
+										showDataType = methodsData[k].returnDataType;
+									}
+									if(rIdx==0&&fIdx==0&&apiStatusesData.length>0){
+										fieldTableStr = fieldTableStr + "<tr data-toggle='collapse' href='#apiStatusId"+methodsData[k].id+"' style='background-color:#D9EDF7;cursor:pointer;' class='info'><td width='15%'>"+fieldsData[fIdx].name+"</td><td width='45%'>"+showDataType+"</td><td width='10%'>"+isAllowEmptyCn+"</td><td width='30%'>"+fieldsData[fIdx].description+"</td></tr>";
+										var statusStr = "<tr><td colspan='4'>";
+										statusStr = statusStr + "<div id='apiStatusId"+methodsData[k].id+"' class='panel-collapse collapse'><div class='panel-body'>";
+										statusStr = statusStr + "<table class='table table-condensed'>";
+										statusStr = statusStr + "<thead style='color:#2A6496;font-weight:bold;font-family:cursive;'><tr class='warning'><td>状态编码</td><td>提示信息</td></tr></thead>";
+										for(var sIdx=0;sIdx<apiStatusesData.length;sIdx++){
+											statusStr = statusStr + "<tr><td>&nbsp;"+apiStatusesData[sIdx].code+"</td><td>"+apiStatusesData[sIdx].message+"</td></tr>";
+										}
+										statusStr = statusStr + "</table>";	
+									    statusStr = statusStr + "</div></div>";
+										statusStr = statusStr + "</td><tr/>";
+										fieldTableStr = fieldTableStr + statusStr;
+									}else{
+										fieldTableStr = fieldTableStr + "<tr><td width='15%'>&nbsp;"+fieldsData[fIdx].name+"</td><td width='45%'>"+showDataType+"</td><td width='10%'>"+isAllowEmptyCn+"</td><td width='30%'>"+fieldsData[fIdx].description+"</td></tr>";
+									}
+								}
+								fieldTableStr = fieldTableStr + "</table>"
+								returnClsStr = returnClsStr + fieldTableStr;
+								returnClsStr = returnClsStr + "</div>";
+								returnClsStr = returnClsStr + "</div>";
+							}
+							respModelStr = respModelStr + returnClsStr;
+							respModelStr = respModelStr + "</div>";
+							respModelStr = respModelStr + "</div>";
+							methodTabStr = methodTabStr + respModelStr; //methodTabStr = methodTabStr + "1";
+							methodTabStr = methodTabStr + "</div>";
+							//处理响应示例
+							methodTabStr = methodTabStr + "<div class='tab-pane fade' id='exampleId"+methodsData[k].id+"'>";
+							methodTabStr = methodTabStr + "";
+							methodTabStr = methodTabStr + "</div>";
+							//处理变更记录
+							methodTabStr = methodTabStr + "<div class='tab-pane fade' id='logsId"+methodsData[k].id+"'>";
+							var changeLogs = "<table class='table table-condensed font-size-15'>";
+							changeLogs = changeLogs + "<tr><th width='5%'>序号</th><th width='75%'>变更内容</th><th class='text-align-center' width='10%'>变更日期</th><th class='text-align-center' width='10%'>变更人</th></tr>";
+							var apiLogs = methodsData[k].apiLogs;
+							if(apiLogs.length>0){
+								for(var logIdx=0;logIdx<apiLogs.length;logIdx++){
+							       changeLogs = changeLogs + "<tr><td class='text-align-center'>"+(logIdx+1)+"</td><td>"+apiLogs[logIdx].logMsg+"</td><td class='text-align-center'>"+apiLogs[logIdx].logDate+"</td><td class='text-align-center'>"+apiLogs[logIdx].logPerson+"</td></tr>";
+								}
+							}else{
+								changeLogs = changeLogs + "<tr><td colspan='4' class='text-align-center'>暂无</td></tr>";
+							}
+							changeLogs = changeLogs + "</table>";
+							methodTabStr = methodTabStr + changeLogs;
+							//处理变更记录
+							methodTabStr = methodTabStr + "</div>";
+							//处理备注说明
+							methodTabStr = methodTabStr + "<div class='tab-pane fade' style='padding:15px;line-height:25px;' id='remarkId"+methodsData[k].id+"'>";
+							if(methodsData[k].remark==""){
+								methodTabStr = methodTabStr + "<div style='text-align:center;'>暂无</div>";
+							}else{
+								methodTabStr = methodTabStr + methodsData[k].remark;
+							}
+							methodTabStr = methodTabStr + "</div>";
+							methodTabStr = methodTabStr + "</div>";
+							/*****detail*****/
+							methodStr = methodStr + methodTabStr;
+							/*****请求参数*****/
+							var reqHeadStr = "<div class='panel-width panel panel-info'><div class='panel-heading'><h3 class='panel-title'>请求参数</h3></div><div class='panel-body'>";
+							methodStr = methodStr + reqHeadStr;
+							var reqParamsStr = "<table class='table table-condensed'>";
+							reqParamsStr = reqParamsStr + "<tr><th>序号</th><th>名称</th><th>值</th><th>类型</th><th>必选</th><th>描述</th></tr>";
+							var parameters = methodsData[k].parameters;
+							for(var paramIdx=0;paramIdx<parameters.length;paramIdx++){
+								var isRequiredCls = parameters[paramIdx].isRequired==1?"required":"";
+								var isRequiredCn = parameters[paramIdx].isRequired==1?"是":"否";
+								reqParamsStr = reqParamsStr + "<tr><td width='10%'>&nbsp;&nbsp;"+(paramIdx+1)+"</td><td width='15%'>"+parameters[paramIdx].name+"</td><td width='20%'><input type='text' name='"+parameters[paramIdx].name+"' class='form-control normal-input-width "+isRequiredCls+"' placeholder='"+isRequiredCls+"' /></td><td width='20%'>"+parameters[paramIdx].simpleType+"</td><td width='15%'>"+isRequiredCn+"</td><td width='20%'>"+parameters[paramIdx].description+"</td></tr>";
+							}
+							reqParamsStr = reqParamsStr + "</table>";
+							methodStr = methodStr + reqParamsStr;
+							var treReqStr = "<button type='button' class='btn btn-info' onclick='tryRequest(this,"+methodsData[k].id+");'>试一下!</button>";
+							treReqStr = treReqStr + "<div class='panel panel-info margin-top-10 div-display-none' id='responseDivId"+methodsData[k].id+"'>";
+							treReqStr = treReqStr + "<div class='panel-heading'><h3 class='panel-title'>响应值</h3></div>";
+							treReqStr = treReqStr + "<div class='panel-body' id='responseBodyId"+methodsData[k].id+"'></div>";
+							treReqStr = treReqStr + "</div>";
+							methodStr = methodStr + treReqStr; 
+							methodStr = methodStr + "</div></div>";
+							/*****请求参数*****/
+							methodStr = methodStr + "</div>";
+							methodStr = methodStr + "</div>";
+						} 
+						resourcesStr = resourcesStr + methodStr;
+						resourcesStr = resourcesStr + "</div>";
+						resourcesStr = resourcesStr + "</div>";
+			        }            
+					$("#content").html(resourcesStr);
+					honeySwitch.init("#content");
+					//设置当前tab下的switch开关状态
+					setSwitchState();
+					//获取api返回样例信息
+					setExamplesData();
+					//默认展开第一项
+					openFirstItem();
+				});
+		  });
+		  //初始化全量switch
+		  honeySwitch.init("#middleId");
+		  $.get(isAllMockUrl,function(isAllMockData){
+	          if(isAllMockData.isAllMockSet==1){
+	        	  honeySwitch.showOn("#allSw");
+	          }
+	          //判断是否在白名单内
+	          isAllow = isAllMockData.isAllow;
+	          if(!isAllow){
+	        	  $("#allSw").addClass("switch-disabled");
+	          }else{
+	        	  var lockHtml = "<font color='#1296DB'>Api Mock锁开关</font>";
+	        	  lockHtml = lockHtml + "<br/>";
+	        	  if(isAllMockData.isLocked){
+	        	      lockHtml = lockHtml + "<img onclick='lockMock(this);' title='锁定后仅当前pc可操作' attrSts='close' src='./images/lock_close.png' style='width:35px;height:30px;cursor:pointer;margin-bottom:7px;'>";
+	        	  }else{
+	        		  lockHtml = lockHtml + "<img onclick='lockMock(this);' title='锁定后仅当前pc可操作' attrSts='open' src='./images/lock_open.png' style='width:35px;height:30px;cursor:pointer;margin-bottom:7px;'>";
+	        	  }
+	        	  $("#lockDivId").html(lockHtml);
+	          }
+	          //默认开启第一项
+			  $("#navi-bar ul li a:first").click();
+		  });
+	  });
+  });
+  //尝试请求
+  function tryRequest(obj,methodId){
+		var params = {};
+		var validFlag = true;
+		$(obj).prev().find("input").each(function(index){
+			params[$(this).attr("name")] = $(this).val();
+			if($(this).hasClass("required")&&$(this).val()==""){
+				$(this).addClass("input-required-border");
+				validFlag = false;
+			}else{
+				$(this).removeClass("input-required-border");
+			}
+		});
+		if(validFlag){
+			var reqType = "GET";
+			if(-1==$("#methodId"+methodId).html().indexOf("GET")){
+				reqType = "POST";
+			}
+			var paramsStr = JSON.stringify(params);
+			var uriStr = $("#uriId"+methodId).html();
+			$.post(simulateReqUrl,{paramsStr:paramsStr,reqType:reqType,uriStr:uriStr},function(retData){
+              $("#responseDivId"+methodId).removeClass("div-display-none");
+              $("#responseDivId"+methodId).addClass("div-display-block");
+				var options = {
+				   dom : "#responseBodyId"+methodId
+			    };
+			    var jf = new JsonFormater(options);
+			    jf.doFormat(JSON.stringify(retData));
+			});
+		}
+  }
+  //设置指定api是否启用mocker
+  function setApiMock(obj){
+	  //判断是否在白名单内
+   	  var hasCls = $(obj).hasClass("switch-disabled");
+   	  if(!hasCls){
+   		  //处理事件
+   		  var sId = $(obj).attr("id");
+   		  var mockType;
+   		  if($(obj).attr("class")=="switch-on"){
+   			 mockType = 0;
+   		  }
+   		  if($(obj).attr("class")=="switch-off"){
+   			 mockType = 1;
+   		  }
+   		  var apiId = sId.substring(2);
+   		  //设置api mock信息
+   		  $.get(apiMockReqUrl+"/"+apiId+"/"+mockType,function(apiMockData){
+   			  if(apiMockData.status==200){
+   				  if(apiMockData.isAllMockSet==0){
+      				 honeySwitch.showOff("#allSw");
+      			  }else{
+      				 honeySwitch.showOn("#allSw");
+      			  }
+   			  }else{
+   				  //开关状态复原
+   				  if(mockType==0){//开启
+   					 honeySwitch.showOn("#"+sId);
+   				  }else{//关闭
+   					 honeySwitch.showOff("#"+sId);
+   				  }
+   			  }
+   			  showToast(apiMockData.message, true);
+   		  });
+   	  }
+	  //取消事件冒泡
+      var e = arguments.callee.caller.arguments[0]||window.event;
+      if(e&&e.stopPropagation) {
+         e.stopPropagation();
+      }else if (window.event) {
+         window.event.cancelBubble = true;
+      }
+  }
+  //设置所有api是否启用mocker
+  function setAllApiMock(obj){
+   	  //判断是否在白名单内
+   	  var hasCls = $(obj).hasClass("switch-disabled");
+   	  if(hasCls){
+   		  return;
+   	  }
+   	  //处理事件
+	  var mockType;
+	  if($(obj).attr("class")=="switch-on"){
+		 mockType = 0;
+	  }
+	  if($(obj).attr("class")=="switch-off"){
+		 mockType = 1;
+	  }
+	  $.get(apiMockReqUrl+"/"+mockType,function(apiMockData){
+		  if(apiMockData.status==200){
+			  setSwitchState();
+		  }else{
+			//开关状态复原
+		    if(mockType==0){//开启
+			  honeySwitch.showOn("#allSw");
+		    }else{//关闭
+			  honeySwitch.showOff("#allSw");
+		    }
+		  }
+		  showToast(apiMockData.message, true);
+	  }); 
+  }
+  //设置当前tab下的switch开关状态
+  function setSwitchState(){
+	  $.get(apiMockMapUrl,function(apiMockMapData){
+			 $("#content").find("span[id^='sw']").each(function(n){
+				 if($(this).attr("class")=="switch-on"||$(this).attr("class")=="switch-off"){
+					 var mockKey = $(this).attr("attrKey");
+					 if(apiMockMapData[mockKey]){
+						 honeySwitch.showOn("#"+$(this).attr("id"));
+					 }else{
+						 honeySwitch.showOff("#"+$(this).attr("id"));
+					 }
+					 //判断是否在白名单内
+					 if(!isAllow){
+			        	 $(this).addClass("switch-disabled");
+			         }
+				 }
+			 });
+	   });
+  }
+  //设置样例数据
+  function setExamplesData(){
+	  $.get(apiExamplesUrl,function(apiExamplesData){
+		  apiExamples = apiExamplesData;
+		  //格式化样例数据
+		  $("div[id^='exampleId']").each(function(n){
+			    var idStr = $(this).attr("id");
+		        var options = {
+			        dom : "#"+idStr
+			    };
+			    var jf = new JsonFormater(options);
+			    jf.doFormat(apiExamples[idStr]);
+		  });
+	  });
+  }
+  //提示信息
+  function showToast(message,isLoad){
+	  $.toast({
+		    text: message,
+		    icon: 'success',
+		    showHideTransition: 'fade',
+		    allowToastClose: true,
+		    hideAfter: 3000,
+		    stack: 5,
+		    position: 'mid-center',
+		    textAlign: 'left',
+		    loader: isLoad,
+		    loaderBg: '#9ec600',
+		    beforeShow: function () {},
+		    afterShown: function () {},
+		    beforeHide: function () {},
+		    afterHidden: function () {}
+	  });
+  }
+  //导出开启mock配置信息  
+  function exportMockConfig(){
+	  window.location.href = exportMockConfigUrl;
+  }
+  //导出Docs Pdf文档 
+  function exportDocsPdf(){
+	  window.location.href = apiExportPdfUrl;
+  }
+  //导出Docs Doc文档 
+  function exportDocsDoc(){
+	  window.location.href = apiExportDocUrl;
+  }
+  //ajax上传文件
+  function ajaxUploadFile(obj) {
+	 $.ajaxFileUpload({
+		 url : importMockConfigUrl,
+		 secureuri : false, //是否需要安全协议,一般设置为false
+		 fileElementId : $(obj).attr("id"), //文件上传域的ID
+		 dataType : "json", //返回值类型 一般设置为json
+		 success : function(data) {
+			 window.location.reload();
+		 },
+		 error : function() {
+			 window.location.reload();
+		 }
+	 });
+  }
+  //默认展开第一项
+  function openFirstItem(){
+	  var topHeads = $("#content div:first").children(".panel-heading");
+	  if(topHeads.length>0){
+		  $(topHeads.get(0)).click();
+	  }
+  }
+  //锁定mock
+  function lockMock(obj){
+	  if($(obj).attr("attrSts")=="open"){//单击锁定
+		  $.get(apiLockMockUrl + "/1", function(lockData){
+			  if(lockData.status==200){
+				  $(obj).attr("attrSts", "close");
+				  $(obj).attr("src", "./images/lock_close.png");
+				  showToast(lockData.message);
+			  }else{
+				  showToast("已被其他pc端锁定!");
+				  window.location.reload();
+			  }
+		  });
+	  }else{//单击解锁
+		  $.get(apiLockMockUrl + "/0", function(lockData){
+			  if(lockData.status==200){
+				  $(obj).attr("attrSts", "open");
+				  $(obj).attr("src", "./images/lock_open.png");
+				  showToast(lockData.message);
+			  }else{
+				  showToast("没有解锁权限!");
+			  }
+		  });
+	  }
+  }
+</script>
+</head>
+<body>
+	 <div class="wrapDiv">
+	     <div class="top">
+	        <div id="titleId" class="div-title-left">智慧开放Rest Api Docs</div>
+	        <div class="div-title-right">-----------开启智慧新生活</div>
+	     </div>
+	     <div class="div-clear"></div>
+	     <div id="middleId" class="middle" style="padding-left:210px;">
+	        <div class="div-float-right">
+	            <div class="input-group" style="width:300px;margin-bottom:5px;">
+					<input id="searchTextId" type="text" class="form-control" autocomplete="off" placeholder="请输入标题、作者、URI查找" />
+					<span class="input-group-btn">
+					   <button class="btn btn-info btn-search" onclick="doSearch();">Search</button>
+					</span>
+				</div>
+	        </div>
+	        <div class="div-float-left" style="padding-top:8px;">
+		        <span id="allSw" class="switch-off" onclick="setAllApiMock(this);" style="margin-right:10px;"></span>
+	        </div>
+	        <div class="div-float-left" style="line-height:35px;color:#D6A455;">
+	                              全量Api Mock开关
+		        <!-- 注意:每个Api提供mock开关,默认关闭.开启后访问接口返回mock数据,此处提供全量开关 -->
+	        </div>
+	     </div>
+	     <div id="wrapContent">
+		     <div id="navi-bar" class="group_list_bt">
+		         <ul id="apiGroupsUl" class="nav nav-tabs nav-stacked"></ul>
+		     </div>
+		     <div id="content" class="panel panel-default panel-group" style="background-color:#F9F9F9;"></div>
+		     <div id="rightBtDiv">
+		        <button type="button" class="btn btn-info btn-sm" onclick="exportMockConfig();">导出Api Mock配置</button>
+		        <button type="button" class="btn btn-info btn-sm" onclick= "$('#configDataId').click();">导入Api Mock配置</button>
+		        <input type="file" id="configDataId" name="configData" onchange="ajaxUploadFile(this);" style="display:none;" />
+		        <button type="button" class="btn btn-info btn-sm" onclick="exportDocsPdf();">导出Docs Pdf文档</button>
+		        <button type="button" class="btn btn-info btn-sm" onclick="exportDocsDoc();">导出Docs Doc文档</button>
+		        <br/>
+		        <div id="lockDivId"></div>
+		        <a class="link-cls" href="./api-code.html" target="_blank">Api Model代码生成</a>
+		        <a class="link-cls" href="./api-note.html" target="_blank">Api Docs 使用说明</a>
+		     </div>
+		 </div>
+	 </div>
+     <!-- 搜索模态框 -->
+	 <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+	    <div class="modal-dialog" style="width:850px;">
+	        <div class="modal-content">
+	            <div id="modalHeader" class="modal-header">
+	                <button type="button" class="close" data-dismiss="modal" aria-hidden="true"><font color="white">×</font></button>
+	                <h4 class="modal-title" id="myModalLabel"><b>搜索结果</b></h4>
+	            </div>
+	            <div class="modal-body" style="width:848px;background-color:#F9F9F9;">
+	                <div id="searchContentId"></div>
+	            </div>
+	            <div id="modalFooter" class="modal-footer">
+	                <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+	            </div>
+	        </div>
+	    </div>
+	 </div>
+	 <!-- 搜索模态框 -->
+     <div id="bottomId">@CopyRight 2017 liangjwjob_2014@sina.com&nbsp;&nbsp;&nbsp;<font color="#D6A455">目前支持Chrome、Firefox、UC浏览器</font></div>
+</body>
+</html>

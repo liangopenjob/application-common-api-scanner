@@ -1,0 +1,289 @@
+body {
+	margin: auto;
+	min-width: 1300px;
+	padding-top: 8px;
+	padding-left: 10%;
+	background-color: #F9F9F9;
+}
+
+.wrapDiv {
+	width: 1150px;
+}
+
+.top {
+	width: 1015px;
+	height: 80px;
+	border-radius: 5px;
+	border: 1px solid #ddd;
+	border: 1px solid #ddd;
+	background-color: #4EA0D6;
+	box-shadow: 0 1px 4px rgba(0, 0, 0, 0.067);
+}
+
+.middle {
+	width: 1015px;
+	height: 30px;
+	margin-bottom: 5px;
+}
+
+.div-title-left {
+	float: left;
+	color: white;
+	line-height: 80px;
+	font-size: 30px;
+	font-weight: bold;
+	letter-spacing: 5px;
+	text-indent: 30px;
+	line-height: 80px;
+}
+
+.div-title-right {
+	float: right;
+	color: white;
+	line-height: 100px;
+	letter-spacing: 5px;
+	text-indent: 30px;
+	text-align: right;
+	padding-right: 15px;
+}
+
+#navi-bar {
+	width: 170px;
+	height: 420px;
+	float: left;
+}
+
+#navi-bar ul {
+	/* margin: auto; */
+}
+
+#navi-bar ul.nav-tabs {
+	width: 140px;
+	margin-top: 0px;
+	border-radius: 4px;
+	border: 1px solid #ddd;
+	box-shadow: 0 1px 4px rgba(0, 0, 0, 0.067);
+}
+
+#navi-bar ul.nav-tabs li {
+	margin: 0;
+	border-top: 1px solid #ddd;
+}
+
+#navi-bar ul.nav-tabs li a {
+	margin: 0;
+	padding: 8px 16px;
+	border-radius: 0;
+}
+
+#navi-bar ul a {
+	cursor: pointer;
+}
+
+#navi-bar ul.nav-tabs li.active a, ul.nav-tabs li.active a:hover {
+	color: #fff;
+	background: #0088cc;
+	border: 1px solid #0088cc;
+}
+
+#navi-bar ul.nav-tabs li:first-child a {
+	border-radius: 4px 4px 0 0;
+}
+
+#navi-bar ul.nav-tabs li:last-child a {
+	border-radius: 0 0 4px 4px;
+}
+
+#content {
+	width: 800px;
+	min-height: 420px;
+	margin-top: 0px;
+	margin-left: 3.5%;
+	float: left;
+}
+
+#wrapContent {
+	width: 1150px;
+	height: 430px;
+	min-height: 430px;
+	display: table;
+}
+
+.panel-collapse {
+	padding-top: 5px;
+}
+
+.text-line-through {
+	color: red;
+	text-decoration: line-through;
+}
+
+.text-info-color {
+	color: #31B0D5;
+}
+
+.margin-top-10 {
+	margin-top: 10px;
+}
+
+.margin-left-13 {
+	margin-left: 13px;
+}
+
+.margin-left-50 {
+	margin-left: 50px;
+}
+
+.margin-left-100 {
+	margin-left: 100px;
+}
+
+.margin-right-10 {
+	margin-right: 10px;
+}
+
+.div-float-left {
+	float: left;
+}
+
+.div-float-right {
+	float: right;
+}
+
+.pad-top-5 {
+	padding-top: 5px;
+}
+
+.div-clear {
+	clear: both;
+}
+
+.div-display-none {
+	display: none;
+}
+
+.div-display-block {
+	display: block;
+}
+
+.line-height-30 {
+	line-height: 30px;
+}
+
+.text-align-left {
+	text-align: left;
+}
+
+.text-align-center {
+	text-align: center;
+}
+
+.text-align-right {
+	text-align: right;
+}
+
+.input-required-border {
+	border-color: red;
+}
+
+#bottomId {
+	left: 0;
+	width: 100%;
+	height: 25px;
+	position: fixed;
+	bottom: 0;
+	z-index: 999;
+	line-height: 25px;
+	text-align: center;
+	border-radius: 2px;
+	background: #DBEAF9;
+	letter-spacing: 1px;
+	box-shadow: 0 1px 4px rgba(0, 0, 0, 0.067);
+	border-top: solid 1px lightgray;
+	font-family: "Microsoft YaHei", "微软雅黑", "sans-serif";
+}
+
+#rightBtDiv {
+	float: left;
+	width: 120px;
+	height: 200px;
+	text-align: center;
+	margin-left: 10px;
+	border-radius: 7px;
+	-moz-border-radius: 7px;
+	-webkit-border-radius: 7px;
+}
+
+#rightBtDiv button {
+	margin-bottom: 10px;
+}
+
+#myModal #modalHeader {
+	color: white;
+	padding: 10px;
+	line-height: 50px;
+	font-size: 25px;
+	letter-spacing: 3px;
+	text-indent: 7px;
+	line-height: 50px;
+	background-color: #4EA0D6;
+	border-top-left-radius: 5px;
+	border-top-right-radius: 5px;
+}
+
+#myModal #searchContentId {
+	margin: auto;
+	width: 820px;
+	height: 400px;
+	overflow: auto;
+}
+
+#myModal #modalFooter {
+	padding: 10px;
+}
+
+.panel-heading {
+	cursor: pointer;
+}
+
+.link-cls {
+    color: #1296DB;
+    text-decoration: underline;
+}
+
+#codeContentId {
+	width: 1015px;
+	height: 430px;
+	min-height: 430px;
+}
+
+.form-group {
+	padding-left: 20%;
+	margin-bottom: 25px;
+}
+
+.form-group label {
+	color: #4EA0D6;
+}
+
+.bt-group {
+	padding-left: 60%;
+}
+
+#noteContentId {
+	width: 1015px;
+	height: 430px;
+	min-height: 430px;
+}
+
+.panel-content {
+	padding-left: 20px;
+	font-size: 15px;
+	letter-spacing: 0.5px;
+	line-height: 25px;
+}
+
+.duihao-ser {
+	width:20px;
+	height:20px;
+}
